@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: web
+  task:
+    execution:
+      pool:
+        max-size: 20
+    scheduling:
+      pool:
+        size: 20
+  aop:
+    proxy-target-class: true
+  mvc:
+    view:
+      prefix: /views/
+      suffix: .html
+  main:
+    allow-circular-references: true
+  datasource:
+    hikari:
+      pool-name: ${spring.application.name}-hikariCP
+      minimum-idle: 5
+      idle-timeout: 30000
+      maximum-pool-size: 64
+      auto-commit: true
+      max-lifetime: 1800000
+      connection-timeout: 30000
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/datafort?useUnicode=true&characterEncoding=utf-8&useLocalSessionState=true&useAffectedRows=true&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: DF*c3000sdf
+logging:
+  config: classpath:log4j2.xml
+server:
+  servlet:
+    application-display-name: datafort
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
+    map-underscore-to-camel-case: true
+#  global-config:
+#    db-config:
+#      update-strategy: not_null
