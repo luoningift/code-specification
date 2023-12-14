@@ -4,5 +4,5 @@
 | ------ | ------ | ------ |
 | java-project-specification | java web项目规范 | 无 |
 | java-module-project-specification | 项目安装相关规范 | 无 |
-| module-project-specification | java web模块规范 | 无 |
+| project-specification | 项目脚本及其他配置规范 | 无 |
 | config-specification| 配置文件规范 | 无 |
