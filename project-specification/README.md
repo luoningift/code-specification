@@ -1,86 +1,22 @@
-#### Java代码规范
+#### 项目 oem安装脚本规范
 
-##### 一、Java oem 代码规范
-1、oem包代码结构规范
-```Java
+##### 一、项目oem安装脚本目录
 
-// oem 包名规则 
-// plugin.datafort + 产品编码 + oem厂商名称
-
-// oem包下必须有两个类 
-// oem包扫描配置范围配置类
-package plugin.datafort.afw.hs;
-
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-@MapperScan("plugin.datafort.afw.hs.dao")
-@ComponentScan({"plugin.datafort.afw.hs"})
-public class HsOemConfiguration {
-}
-
-// oem初始化实现plugin.datafort.afw.OemInitService方法
-package plugin.datafort.afw.hs;
-import plugin.datafort.afw.OemInitService;
-public class HsOemInitServiceImpl implements OemInitService {
-    
-    @Override
-    public void initConfig() {
-    
-    }
-    
-    @Override
-    public void initProgram() {
-    
-    }
-    
-    @Override
-    public void initOther() {
-    
-    }
-}
+``` 
+├── plugin  扩展支持目录
+│   ├── default 默认项
+│   │   ├── business.sh 业务相关
+│   │   ├── other.sh 其他
+│   │   ├── system.sh 系统相关
+│   │   └── web.sh web服务相关
+│   ├── hs  山石扩展
+│   │   ├── business.sh
+│   │   ├── other.sh
+│   │   ├── system.sh
+│   │   └── web.sh
+│   └── trx 天融信扩展
+│       ├── business.sh
+│       ├── other.sh
+│       ├── system.sh
+│       └── web.sh
 ```
-
-2、oem包引入配置
-
-```Java
-//sprint boot 入口类增加选择器
-@Import(OemImportSelector.class)
-
-//oem包引入配置类        
-package cn.datafort.oem;
-
-import org.springframework.context.annotation.ImportSelector;
-import org.springframework.core.type.AnnotationMetadata;
-
-public class OemImportSelector implements ImportSelector {
-    
-    @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-        
-        String oem = "trx";
-        //todo OemInitService
-        System.out.println(oem);
-        return new String[]{"plugin.datafort.afw." + oem + "." + Character.toUpperCase(oem.charAt(0)) + oem.substring(1) + "OemConfiguration"};
-    }
-}
-```
-
-3、oem包使用举例
-
-| 需求 | 建议方式 | 注意事项 |
-| ------ | ------ | ------ |
-| 推送消息 | 使用事件订阅模式，在主代码中定义事件，oem代码中订阅事件信息 | 无 |
-
-
-##### 二、Java controller 参数验证规范
-
-##### 三、Java 常量定义规范
-
-##### 四、Java 对象属性复制规范
-
-##### 五、Java 固定业务模式规范
-
-##### 六、Java 接口编写规范
