@@ -1,0 +1,14 @@
+# Java需要忽略的文件
+
+# 忽略项目生成的class文件和jar包或war包
+*-src/out/
+# 本地编译生成的class文件
+*.class
+# 本地编译生成的jar包
+*.jar
+# 忽略idea配置文件
+.idea/
+# 忽略maven项目编译生成文件
+target/
+*.iml
+dependency-reduced-pom.xml
