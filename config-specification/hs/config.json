@@ -1,0 +1,34 @@
+{
+  "common": {
+    "desc": "通用配置",
+    "mysql": {
+      "username": "datafort",
+      "password": "encrypt_password"
+    },
+    "redis": {
+      "username": "datafort",
+      "password": "encrypt_password"
+    },
+    "pika": {
+      "username": "datafort",
+      "password": "encrypt_password"
+    },
+    "dbMap": [
+      {
+        "identity": "mysql",
+        "code": 10,
+        "name": "mysql数据库"
+      }
+    ]
+  },
+  "user_business": {
+    "desc": "用户相关配置",
+    "sec_user_password": "encrypt_password",
+    "sys_user_password": "encrypt_password",
+    "aut_user_password": "encrypt_password"
+  },
+  "message_business": {
+    "desc": "消息相关配置",
+    "duration": 10
+  }
+}
