@@ -67,6 +67,11 @@
             <version>1.18.20</version>
         </dependency>
         <dependency>
+            <groupId>module.datafort</groupId>
+            <artifactId>module-user</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>1.5.5.Final</version>

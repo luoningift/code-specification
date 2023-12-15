@@ -134,7 +134,7 @@
                 <configuration>
                     <archive>
                         <!-- not include pom.xml -->
-                        <addMavenDescriptor>true</addMavenDescriptor>
+                        <addMavenDescriptor>false</addMavenDescriptor>
                         <manifest>
                             <!-- 是否要把第三方jar加入到类的构建路径 -->
                             <addClasspath>true</addClasspath>

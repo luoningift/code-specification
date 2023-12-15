@@ -14,7 +14,7 @@ public class MdUserOemImportSelector implements ImportSelector {
         String oem = "trx";
         String moduleName = ModuleInfo.moduleName;
         //MdUserHsOemInitServiceImpl.java
-        String oemInitClass = "plugin.module.datafort." + moduleName + ".Md" + Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1) + Character.toUpperCase(oem.charAt(0)) + oem.substring(1) + "OemInitServiceImpl";
+        String oemInitClass = "plugin.module.datafort." + moduleName + "." + oem +".Md" + Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1) + Character.toUpperCase(oem.charAt(0)) + oem.substring(1) + "OemInitServiceImpl";
         
         try {
             final Class<? extends OemInitService> initClass = Class.forName(oemInitClass).asSubclass(OemInitService.class);
@@ -25,7 +25,7 @@ public class MdUserOemImportSelector implements ImportSelector {
         } catch (Exception ignore) {
         }
     
-        String oemConfigClass = "plugin.module.datafort." + moduleName + ".Md" + Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1) + Character.toUpperCase(oem.charAt(0)) + oem.substring(1) + "OemConfiguration";
+        String oemConfigClass = "plugin.module.datafort." + moduleName + "." + oem + ".Md" + Character.toUpperCase(moduleName.charAt(0)) + moduleName.substring(1) + Character.toUpperCase(oem.charAt(0)) + oem.substring(1) + "OemConfiguration";
         return new String[]{oemConfigClass};
     }
 }
