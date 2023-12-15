@@ -1,17 +1,14 @@
-package module.datafort.user.module;
+package module.datafort.user;
 
-import module.datafort.user.module.oem.OemImportSelector;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Import;
 
 import java.util.TimeZone;
 
 
-@SpringBootApplication(scanBasePackages = {"cn.datafort"})
-@Import(OemImportSelector.class)
+@SpringBootApplication
 public class ModuleApplication extends SpringBootServletInitializer {
     
     @Override

@@ -71,12 +71,13 @@
 ```
 
 1、module包代码规范
+
 ```Java
 
 // 配置扫描路径
 package module.datafort.user.module.configuration;
 
-import module.datafort.user.module.oem.OemImportSelector;
+import OemImportSelector;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

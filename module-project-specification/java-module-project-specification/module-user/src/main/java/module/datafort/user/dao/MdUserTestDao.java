@@ -1,12 +1,12 @@
-package plugin.module.datafort.user.trx.dao;
+package module.datafort.user.dao;
 
+import module.datafort.user.model.entity.MdUserTestEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
-import plugin.module.datafort.user.trx.entity.TrxTestEntity;
 
 @Repository
 @Mapper
-public interface TrxTestDao extends BaseMapper<TrxTestEntity> {
+public interface MdUserTestDao extends BaseMapper<MdUserTestEntity> {
 
 }

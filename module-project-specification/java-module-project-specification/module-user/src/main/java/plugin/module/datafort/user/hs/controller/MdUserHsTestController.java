@@ -5,20 +5,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import plugin.module.datafort.user.hs.entity.HsTestEntity;
-import plugin.module.datafort.user.hs.service.HsTestService;
+import plugin.module.datafort.user.hs.entity.MdUserHsTestEntity;
+import plugin.module.datafort.user.hs.service.MdUserHsTestService;
 
 @Controller
 @ResponseBody
-@RequestMapping(value = "/hs/test/")
-public class HsTestController {
+@RequestMapping(value = "/hs/user/test/")
+public class MdUserHsTestController {
     
     @Autowired
-    HsTestService testService;
+    MdUserHsTestService testService;
     
     @RequestMapping(value = "getList", method = RequestMethod.GET)
-    public HsTestEntity getDbList() {
-        HsTestEntity testEntity = testService.getInfo();
+    public MdUserHsTestEntity getDbList() {
+        MdUserHsTestEntity testEntity = testService.getInfo();
         return testEntity;
     }
 }

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @TableName("test")
-public class TrxTestEntity {
+public class MdUserTrxTestEntity {
     
     @TableId(value = "id", type = IdType.AUTO)
     private int id;

@@ -1,4 +1,4 @@
-package module.datafort.user.module.model.entity;
+package plugin.module.datafort.user.hs.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @TableName("test")
-public class TestEntity {
+public class MdUserHsTestEntity {
     
     @TableId(value = "id", type = IdType.AUTO)
     private int id;

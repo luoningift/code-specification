@@ -13,7 +13,7 @@
 ```Java
 
 ```Java
-//sprint boot 入口类增加选择器
+//在configuration中引入
 @Import(OemImportSelector.class)
 
 //oem包引入配置类        

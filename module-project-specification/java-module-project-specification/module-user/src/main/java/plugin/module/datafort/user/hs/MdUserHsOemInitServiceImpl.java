@@ -1,8 +1,8 @@
-package plugin.module.datafort.user.trx;
+package plugin.module.datafort.user.hs;
 
 import plugin.module.datafort.user.OemInitService;
 
-public class TrxOemInitServiceImpl implements OemInitService {
+public class MdUserHsOemInitServiceImpl implements OemInitService {
     
     @Override
     public void initConfig() {
