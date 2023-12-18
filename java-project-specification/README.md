@@ -101,3 +101,4 @@ public class OemImportSelector implements ImportSelector {
 ##### 五、Java 固定业务模式规范
 
 ##### 六、Java 接口编写规范
+参考[swagger入门](docs%2Fswagger%C8%EB%C3%C5.md)
