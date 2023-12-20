@@ -90,7 +90,7 @@ public class HelloController {
 
 5、启动项目，并在浏览器输入`http://localhost:8080/swagger-ui.html`进行swagger-ui界面访问
 
-![img](.\swagger入门.assets\2172597-20210614220801978-288893860.png)
+![img](swagger入门.assets/2172597-20210614220801978-288893860.png)
 
 ### 2.2 配置swagger
 
@@ -222,7 +222,7 @@ public class SwaggerConfig {
 }
 ```
 
-![img](.\swagger入门.assets\2172597-20210614224924620-24878792.png)
+![img](swagger入门.assets/2172597-20210614224924620-24878792.png)
 
 ## 三、swagger常用注解
 
@@ -233,14 +233,14 @@ swagger注解主要是用来给swagger生成的接口文档说明用的
 - @Api：是类上注解，控制整个类生成接口信息的内容
   - tags：类的名称，可以有多个值，多个值表示多个副本，在UI视图中就显示几个控制器访问菜单
   - description：描述，已过时
-    ![img](.\swagger入门.assets\2172597-20210614230526795-647563996.png)
+    ![img](swagger入门.assets/2172597-20210614230526795-647563996.png)
 
 ### 3.2 @ApiOperation
 
 - @ApiOperation：方法的说明，value值必须提供
   - value：说明方法的作用
   - notes：方法的备注说明
-    ![img](.\swagger入门.assets\2172597-20210614231237200-523901601.png)
+    ![img](swagger入门.assets/2172597-20210614231237200-523901601.png)
 
 ### 3.3 @ApiParam
 
@@ -248,7 +248,7 @@ swagger注解主要是用来给swagger生成的接口文档说明用的
   - name：参数别名
   - value：参数的描述
   - required：是否必须需要
-    ![img](.\swagger入门.assets\2172597-20210614232222193-106645379.png)
+    ![img](swagger入门.assets/2172597-20210614232222193-106645379.png)
 
 ### 3.4 @ApiIgnore
 
@@ -264,7 +264,7 @@ swagger注解主要是用来给swagger生成的接口文档说明用的
   - dataType：数据类型
 - @ApiImplicitParams：使用在方法上，描述方法的一组参数
   - value：是@ApiImplicitParam类型的数组
-    ![img](.\swagger入门.assets\2172597-20210614234728904-2044179320.png)
+    ![img](swagger入门.assets/2172597-20210614234728904-2044179320.png)
 
 ### 3.6 @ApiModel和@ApiModelProperty
 
@@ -368,4 +368,4 @@ public class IndexController {
 http://localhost:8080/doc.html
 ```
 
-![knife4j-demo-img.png](.\swagger入门.assets\knife4j-demo-img.png)
+![knife4j-demo-img.png](swagger入门.assets/knife4j-demo-img.png)
