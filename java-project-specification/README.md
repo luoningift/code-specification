@@ -1,6 +1,25 @@
 #### Java代码规范
 
-##### 一、Java oem 代码规范
+##### 一、Java 接口文档编写规范
+参考[swagger入门](docs/swagger入门.md)
+
+[代码示例](java-project-specification/src/main/java/cn/datafort/controller/SwaggerDemoController.java)
+
+[配置示例](java-project-specification/src/main/java/cn/datafort/config/Knife4jConfiguration.java)
+
+
+##### 二、Java controller 参数验证规范
+
+参数验证：使用spring validate 所有参数校验在dto类中完成
+[代码实例](java-project-specification/src/main/java/cn/datafort/controller/TestController.java)
+
+##### 三、Java 常量定义规范
+
+##### 四、Java 对象属性复制规范
+
+##### 五、Java 固定业务模式规范
+
+##### 六、Java oem 代码规范
 1、oem包代码结构规范
 ```Java
 
@@ -92,13 +111,5 @@ public class OemImportSelector implements ImportSelector {
 | 推送消息 | 使用事件订阅模式，在主代码中定义事件，oem代码中订阅事件信息 | 无 |
 
 
-##### 二、Java controller 参数验证规范
 
-##### 三、Java 常量定义规范
 
-##### 四、Java 对象属性复制规范
-
-##### 五、Java 固定业务模式规范
-
-##### 六、Java 接口编写规范
-参考[swagger入门](docs/swagger入门.md)
