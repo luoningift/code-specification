@@ -82,7 +82,6 @@ public class SwaggerDemoController {
             @ApiImplicitParam(name = "name",value = "名称",example = "张飞",dataTypeClass = String.class),
             @ApiImplicitParam(name = "money",value = "金钱",example = "123",dataTypeClass = Long.class),
             @ApiImplicitParam(name = "age",value = "年龄",example = "22",dataTypeClass = Integer.class)
-
     })
     @PostMapping("/params")
     public ResponseEntity<Map<String,String>> params(@ApiIgnore @RequestParam Map<String,String> value){
@@ -95,6 +94,4 @@ public class SwaggerDemoController {
     public ResponseEntity<String> email(@PathVariable("email") String email){
         return ResponseEntity.ok("email:"+email);
     }
-
-
 }

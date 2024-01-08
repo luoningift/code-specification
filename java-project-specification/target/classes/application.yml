@@ -29,6 +29,11 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/datafort?useUnicode=true&characterEncoding=utf-8&useLocalSessionState=true&useAffectedRows=true&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: DF*c3000sdf
+# i18n相关配置
+  messages:
+    basename: i18n/message
+    encoding: utf-8
+    cache-duration: 3600
 logging:
   config: classpath:log4j2.xml
 server:
