@@ -1,4 +1,4 @@
-package cn.datafort.model.entity;
+package cn.datafort.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum StatusEnum {
+public enum StatusEnumDto {
     success(1, "success"),
     fail(2, "fail");
 

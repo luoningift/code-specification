@@ -1,4 +1,4 @@
-package cn.datafort.model.entity;
+package cn.datafort.model.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.Data;
  * @date 2023/12/20 11:34
  */
 @Data
-public class SysUserAllow {
+public class SysUserAllowDto {
     @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
@@ -20,7 +20,7 @@ public class SysUserAllow {
     private Integer status;
 
     @ApiModelProperty(value = "状态枚举", example = "success")
-    private StatusEnum statusEnum;
+    private StatusEnumDto statusEnumDto;
 
     @ApiModelProperty(value = "部门id", example = "123")
     private Long depId;

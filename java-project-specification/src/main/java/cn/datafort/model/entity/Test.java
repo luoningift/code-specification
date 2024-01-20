@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @TableName("test")
-public class TestEntity {
+public class Test {
     
     @TableId(value = "id", type = IdType.AUTO)
     private int id;

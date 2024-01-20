@@ -1,16 +1,17 @@
-package cn.datafort.model.entity;
+package cn.datafort.model.dto;
 
 import cn.datafort.web.common.validation.ObjectFields;
-import cn.datafort.web.common.validation.ObjectFieldsCheckInterface;
+import cn.datafort.web.common.validation.ObjectFieldsValidatorInterface;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @ObjectFields
 @Data
-public class TestChildDto implements ObjectFieldsCheckInterface {
+public class TestDto implements ObjectFieldsValidatorInterface {
     
     @NotNull(message = "不能为空")
     @ApiModelProperty(value = "最小值", example = "1")
@@ -20,14 +21,17 @@ public class TestChildDto implements ObjectFieldsCheckInterface {
     @ApiModelProperty(value = "最大值", example = "1")
     private Integer max;
     
-    public boolean multiFieldsValidator(ConstraintValidatorContext context) {
+    @NotNull(message = "列表不能为空")
+    @Valid
+    private List<TestChildDto> testChildDtoList;
+    
+    public void multiFieldsValidator() {
         
         if (min == null || max == null) {
-            throw new RuntimeException("MIN 和 MAX 不能为空");
+            throw new RuntimeException("参数不能为空");
         }
         if (min > max) {
-            throw new RuntimeException("MAX 不能小于 MIN");
+            throw new RuntimeException("最大值不能小于最小值");
         }
-        return true;
     }
 }

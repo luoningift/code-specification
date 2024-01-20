@@ -1,9 +1,9 @@
 package cn.datafort.service;
 
-import cn.datafort.model.entity.TestEntity;
+import cn.datafort.model.entity.Test;
 
 public interface TestService {
     
     
-    TestEntity getInfo();
+    Test getInfo();
 }

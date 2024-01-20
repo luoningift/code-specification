@@ -1,7 +1,7 @@
 package cn.datafort.controller;
 
-import cn.datafort.model.entity.TestDto;
-import cn.datafort.model.entity.TestEntity;
+import cn.datafort.model.dto.TestDto;
+import cn.datafort.model.entity.Test;
 import cn.datafort.service.TestService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,9 +22,9 @@ public class TestController {
     TestService testService;
     
     @RequestMapping(value = "getList", method = RequestMethod.GET)
-    public TestEntity getDbList() {
-        TestEntity testEntity = testService.getInfo();
-        return testEntity;
+    public Test getDbList() {
+        Test test = testService.getInfo();
+        return test;
     }
     
     @ApiOperation(value = "post参数验证测试")

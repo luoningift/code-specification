@@ -1,10 +1,7 @@
 package cn.datafort.controller;
 
-import cn.datafort.model.entity.SysUserAllow;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import cn.datafort.model.dto.SysUserAllowDto;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +28,6 @@ public class SwaggerDemoController {
     @PostMapping("/batchUpload")
     @ApiImplicitParam(name = "files",value = "文件",required = true,paramType = "form",allowMultiple = true,dataType = "MultipartFile")
     public ResponseEntity<String> uploadBatch(@RequestPart("files")List<MultipartFile> files){
-
         return ResponseEntity.ok(files.stream().map(MultipartFile::getOriginalFilename).collect(Collectors.joining()));
     }
 
@@ -67,14 +63,14 @@ public class SwaggerDemoController {
 
     @ApiOperation(value = "allow-示例")
     @PostMapping("/allow")
-    public ResponseEntity<SysUserAllow> allowResponseEntity(SysUserAllow sysUserAllow){
-        return ResponseEntity.ok(sysUserAllow);
+    public ResponseEntity<SysUserAllowDto> allowResponseEntity(SysUserAllowDto sysUserAllowDto){
+        return ResponseEntity.ok(sysUserAllowDto);
     }
 
     @ApiOperation(value = "allow-示例2")
     @PostMapping("/allow2")
-    public ResponseEntity<SysUserAllow> allowResponseEntity2(@RequestBody SysUserAllow sysUserAllow){
-        return ResponseEntity.ok(sysUserAllow);
+    public ResponseEntity<SysUserAllowDto> allowResponseEntity2(@RequestBody SysUserAllowDto sysUserAllowDto){
+        return ResponseEntity.ok(sysUserAllowDto);
     }
 
     @ApiOperation(value = "动态参数")

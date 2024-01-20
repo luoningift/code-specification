@@ -1,12 +1,12 @@
 package cn.datafort.dao;
 
-import cn.datafort.model.entity.TestEntity;
+import cn.datafort.model.entity.Test;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Mapper
-public interface TestDao extends BaseMapper<TestEntity> {
+public interface TestDao extends BaseMapper<Test> {
 
 }

@@ -15,30 +15,30 @@ public class BusinessException extends RuntimeException {
     /**
      * 异常错误码
      */
-    private final int code;
+    private final int status;
     /**
      * 错误信息描述
      */
-    private final String msg;
+    private final String message;
 
-    public BusinessException(int code) {
-        this.code = code;
+    public BusinessException(int status) {
+        this.status = status;
         //todo msg对应表
-        this.msg = "未知错误";
+        this.message = "未知错误";
     }
     
-    public BusinessException(int code, String msg) {
+    public BusinessException(int status, String message) {
         
-        super(code + "-" + msg);
-        this.code = code;
-        this.msg = msg;
+        super(status + "-" + message);
+        this.status = status;
+        this.message = message;
     }
     
-    public int getCode() {
-        return code;
+    public int getStatus() {
+        return status;
     }
     
-    public String getMsg() {
-        return msg;
+    public String getMessage() {
+        return message;
     }
 }
