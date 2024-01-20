@@ -1,58 +1,203 @@
 #### Java代码规范
 
-##### 一、Java 接口文档编写规范
-参考[swagger入门](docs/swagger入门.md)
+#### 一、web项目工程结构
+```
+java 项目统一使用spring boot开发web项目
 
-[代码示例](src/main/java/cn/datafort/controller/SwaggerDemoController.java)
+必须依赖的组件为swagger2，mapstruct，log4j2，mybatis-plus，lombok, spring validation等
 
-[配置示例](src/main/java/cn/datafort/config/Knife4jConfiguration.java)
+工程基本结构：
+├── controller  请求处理层
+│   ├── ProductController.java
+│   ├── SwaggerDemoController.java
+│   ├── SwaggerI18nDemoController.java
+│   └── TestController.java
+├── dao         数据访问层
+│   ├── AmProductDao.java
+│   ├── AmSupplierDao.java
+│   └── TestDao.java
+├── model       实体类 
+│   ├── dto         数据传输对象，请求处理层接收请求参数
+│   │   ├── ProductDto.java
+│   │   ├── StatusEnumDto.java
+│   │   ├── SysUserAllowDto.java
+│   │   ├── TestChildDto.java
+│   │   └── TestDto.java
+│   ├── entity      数据对象，与数据库表保持一致
+│   │   ├── AmProduct.java
+│   │   ├── AmSupplier.java
+│   │   └── Test.java
+│   ├── ObjectMapper.java
+│   └── vo          展示层视图结构
+│       └── ProductVo.java
+├── service     业务处理层
+│   ├── impl
+│   │   ├── ProductServiceImpl.java 业务接口具体逻辑实现
+│   │   └── TestServiceImpl.java
+│   ├── ProductService.java    业务接口定义
+│   └── TestService.java
+```
 
+#### 二、日志规范
+```
+统一使用log4j2日志组件，使用lombok Slf4j注解声明日志实例
+禁止在Dto、Vo、Entity等临时对象声明@Slf4j
+```
 
-##### 二、Java controller 参数验证规范
+#### 三、java开发规范
+```
+1、任何数据结构的构造或初始化时需指定容量大小；
+2、不推荐使用JsonObject,Map,Propertity等数据结构；
+```
 
-参数验证：使用spring validate 所有参数校验在dto类中完成
-[代码实例](src/main/java/cn/datafort/controller/TestController.java)
+#### 四、web项目开发规范
+```
+1、 使用swagger2编写接口文档, 使用是swagger2编写接口涉及到controller、dto、vo可不写java注释；
+2、 禁止在WEB开发中使用JsonObject、Map、Property等数据结构；
+3、 在web接口参数不超过三个(基础类型 boolean Integer String等)时，可不用新建实体dto类，超过三个参数时需要新建dto类接收参数；
+4、 所有web接口参数必须校验合法性；使用spring validation校验参数合法性；参数合法性校验在请求处理层或者dto中；参数校验可以写注解或者继承ObjectFieldsValidatorInterface接口java编码校验;
+    三个参数以下校验：
+      @Slf4j
+@Api(tags = "代码规范例子代码-产品管理")
+@RestController
+@RequestMapping(value = "/product",produces = MediaType.APPLICATION_JSON_VALUE)
+@Validated
+public class ProductController {
+    
+    @Autowired
+    private ProductService productService;
+    
+    @ApiOperation(value = "获取产品列表")
+    @ApiImplicitParams(
+            @ApiImplicitParam(name = "name",value = "产品名称",required = true)
+    )
+    @GetMapping("/search")
+    public RepVo<List<ProductVo.AmProduct>> get(@RequestParam("name") @NotNull @Length(min = 2, max = 10, message = "产品名称不能为空且字数范围为2到10") String name){
+        
+        return new RepVo<>(productService.search(name));
+    }
+}
+    超过三个参数使用dto进行校验:
+        @ApiOperation(value = "添加产品")
+    @PostMapping("/add")
+    public RepVo<Object> allowResponseEntity(@RequestBody @Validated ProductDto.AmProduct product){
+        
+        productService.add(product);
+        return RepVo.SUCCESS();
+    }
+    
+     @Data
+    @ApiModel(value="产品类型请求体", description="产品类型")
+    @ObjectFields
+    class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
+        
+        private static final long serialVersionUID = 1L;
+        
+        @ApiModelProperty(value = "主键")
+        private Integer id;
+        
+        @ApiModelProperty(value = "产品名称")
+        private String name;
+        
+        @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
+        private Integer isEngine;
+        
+        @ApiModelProperty(value = "描述")
+        private String description;
+    
+        @Override
+        public void multiFieldsValidator() {
+            
+            if (name == null || name.length() <= 0 || name.length() > 10) {
+                throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "产品名称不能为空且不能超过10个字");
+            }
+            boolean engineFlag = false;
+            for (ProductEngineConst value : ProductEngineConst.values()) {
+                if (value.getCode() == isEngine) {
+                    engineFlag = true;
+                    break;
+                }
+            }
+            if (!engineFlag) {
+                throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "未选择是否需要选择引擎");
+            }
+    
+            if (description == null || description.length() <= 0 || description.length() > 10) {
+                throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "描述信息不能为空且不能超过10个字");
+            }
+        }
+    }
+5、在请求处理层不包含业务逻辑代码；
+6、返回值格式定义：
+{
+  "status": 1000,     状态码：1000 返回成功，1999 当前用户状态未启用，2000 模块授权失败， 2001 用户权限不足，2002 身份识别错误 需要登陆, 3000 参数校验不通过错误，4000 数据错误， 7000其他错误 可在此基础上扩展
+  "message": "操作成功!",  状态码非1000时，详细错误的描述信息
+  "data": [           具体的业务数据
+    {
+      "id": 7,
+      "name": "10",
+      "isEngine": 1,
+      "description": "10"
+    },
+    {
+      "id": 8,
+      "name": "10",
+      "isEngine": 1,
+      "description": "10"
+    },
+    {
+      "id": 9,
+      "name": "10",
+      "isEngine": 1,
+      "description": "10"
+    }
+  ]
+}   
+7、在接收参数和返回值中尽量不要有null，0 代表全部 状态类的参数定义不要使用0这个值，从1开始定义；
+8、entity数据对象规范 需包含swagger类注解和属性注解，mybatis-plus的类注解和属性注解 参考项目：http://git.csdev.com/toolkit/code-specification/-/blob/main/mybatis-plus-entity-generator/src/main/java/cn/datafort/generator/GeneratorMain.java 自动生成数据对象
+@Data
+@EqualsAndHashCode(callSuper = false)
+@TableName("am_product")
+@ApiModel(value="AmProduct对象", description="产品类型")
+public class AmProduct implements Serializable {
 
-##### 三、Java 常量定义规范
+    private static final long serialVersionUID = 1L;
 
-尽量使用enum定义常量 方便扩展
-```java
+    @ApiModelProperty(value = "主键")
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
+    @ApiModelProperty(value = "产品名称")
+    @TableField("name")
+    private String name;
+
+    @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
+    @TableField("is_engine")
+    private Integer isEngine;
+
+    @ApiModelProperty(value = "1 正常 2 删除")
+    @TableField("status")
+    private Integer status;
+
+    @ApiModelProperty(value = "描述")
+    @TableField("description")
+    private String description;
+
+    @ApiModelProperty(value = "创建时间")
+    @TableField("created_at")
+    private LocalDateTime createdAt;
+
+    @ApiModelProperty(value = "更新时间")
+    @TableField("updated_at")
+    private LocalDateTime updatedAt;
+
+}
+9、对象属性复制使用mapstruct 参考：http://git.csdev.com/toolkit/code-specification/-/blob/main/java-project-specification/src/main/java/cn/datafort/model/ObjectMapper.java
+10、常量定义使用enum、方便扩展；
  enum DBType {
     
     ORACLE(0, "Oracle", 1521, 1, 1, 1, new String[]{"9.1.0.1", "9.2.0.1", "9.2.0.2", "9.2.0.4", "10.1.0.1", "10.1.0.2", "10.1.0.3", "10.1.0.4", "10.2.0.1", "10.2.0.2", "10.2.0.3", "10.2.0.4", "11.1.0.1", "11.1.0.2", "11.1.0.3", "11.1.0.4", "11.1.0.5", "11.1.0.6", "11.1.0.7", "11.2.0.1", "11.2.0.2", "11.2.0.3", "11.2.0.4", "12.1.0.1", "12.1.0.2", "12.2.0.1", "12.2.0.2", "unknown"}),
     SQLSERVER(1, "SQL Server", 1433, 0, 1, 1, new String[]{"SQL Server2000（8.0）", "SQL Server2005（9.0）", "SQL Server2008(10.0)", "SQL Server2008R2(10.50)", "SQL Server2012(11.0)", "SQL Server2014(12.0)", "SQL Server2016(13.0)", "SQL Server2017(14.0)", "unknown"}),
-    DB2(2, "DB2", 50000, 0, 1, 0, new String[]{"V3.4", "V8.1", "V8.2", "v9.1", "V9.5", "V9.7", "V10.1", "V10.5", "V11.1", "unknown"}),
-    MYSQL(3, "MySQL", 3306, 0, 1, 1, new String[]{"5.0", "5.1", "5.5", "5.6", "5.7", "5.8", "unknown"}),
-    CACHE(4, "Cache", 1972, 0, 1, 0, new String[]{"2014", "2015", "2016", "2017", "unknown"}),
-    SYBASE(5, "Sybase", 5000, 0, 1, 0, new String[]{"10.0", "11.0", "12.0", "13.0", "15.0", "16.0", "unknown"}),
-    DAMENG7(6, "DM7", 5236, 0, 0, 0, new String[]{"7.1.3", "7.1.5", "7.1.6", "unknown"}),
-    INFORMIX(7, "Informix", 9088, 0, 1, 0, new String[]{"7", "8", "9", "10", "11", "12", "unknown"}),
-    KSTORE(8, "神通", 9088, 0, 1, 0, new String[]{"6.0", "7.0", "8.0", "unknown"}),
-    KINGBASE(9, "人大金仓V8", 54321, 0, 1, 1, new String[]{"V8"}),
-    TERADATA(10, "Teradata", 8002, 0, 1, 0, new String[]{"unknown"}),
-    POSTGRESQL(11, "PostgreSQL", 5432, 0, 1, 1, new String[]{"8.0", "8.1", "8.2", "8.3", "8.4", "9.0", "9.1", "9.2", "9.3", "9.4", "9.5", "9.6", "10.0", "10.1", "unknown"}),
-    GBASE(12, "GBase 8a", 5258, 0, 1, 1, new String[]{"V8.5", "unknown"}),
-    DAMENG6(13, "DM6", 12345, 0, 0, 0, new String[]{"unknown"}),
-    SR(14, "上容", 1975, 0, 1, 0, new String[]{"unknown"}),
-    OTHER(-128, "", 0, 0, 1, 0, new String[]{"unknown"}),
-    KDB(15, "KDB", 8629, 0, 1, 0, new String[]{"11", "unknown"}),
-    HIVE(16, "Hive", 10000, 0, 1, 1, new String[]{"1.1.0", "3.1.0", "unknown"}),
-    MONGODB(17, "MongoDB", 27017, 0, 1, 0, new String[]{"unknown"}),
-    HANA(18, "HANA", 30015, 0, 1, 0, new String[]{"unknown"}),
-    HighGo(19, "HighGo", 5866, 0, 1, 0, new String[]{"unknown"}),
-    HWMPP(20, "HWMPP", 25308, 0, 1, 0, new String[]{"unknown"}),
-    HBASE(21, "HBase", 21300, 0, 1, 0, new String[]{"1.3.1", "unknown"}),
-    ES(22, "ES", 9200, 0, 1, 0, new String[]{"unknown"}),
-    CacheWeb(23, "CacheWeb", 57772, 0, 1, 0, new String[]{"unknown"}),
-    Redis(24, "Redis", 6379, 0, 1, 0, new String[]{"unknown"}),
-    Solr(25, "Solr", 8983, 0, 1, 0, new String[]{"unknown"}),
-    HDFS(26, "HDFS", 8020, 0, 1, 0, new String[]{"2.7.3"}),
-    EsgynDB(27, "EsgynDB(易鲸捷)", 23400, 0, 1, 0, new String[]{"unknown"}),
-    SSDB(28, "SSDB", 8888, 0, 1, 0, new String[]{"unknown"}),
-    Tibero(29, "Tibero", 8629, 0, 1, 0, new String[]{"unknown"}),
-    GAUSSDB(30, "GaussDB", 25308, 0, 1, 1, new String[]{"unknown"}),
-    DM8(31, "DM8", 5236, 0, 1, 1, new String[]{"unknown"}),
-    ClickHouse(32, "ClickHouse", 8123, 1, 0, 1, new String[]{"unknown"});
     
     private final byte code;
     private final String name;
@@ -107,123 +252,33 @@
     public static DBType getDbTypeByPort(int port) {
         return Arrays.stream(DBType.values()).filter(e -> e.getDefaultPort() == port).findFirst().orElse(DBType.OTHER);
     }
-    
-    public static String getNameByCode(int code) {
-        
-        final DBType dbType = Arrays.stream(DBType.values()).filter(e -> (int) (e.getCode()) == code).findFirst().orElse(DBType.OTHER);
-        return dbType.getName();
-    }
-    
-    public static byte getCodeByName(String name) {
-        final DBType dbType = Arrays.stream(DBType.values()).filter(e -> e.getName().equals(name)).findFirst().orElse(DBType.OTHER);
-        return dbType.getCode();
-    }
-    
-    /**
-     * 获取支持脱敏的数据库类型
-     *
-     * @return 支持脱敏的数据库列表
-     */
-    public static List<Integer> getDDMSupportDbType() {
-        
-        final List<Integer> supportDbTypeList = new ArrayList<>();
-        for (DBType dbType : DBType.values()) {
-            if (dbType.isSupportDDM()) {
-                supportDbTypeList.add((int) dbType.getCode());
-            }
-        }
-        return supportDbTypeList;
-    }
-    
-    /**
-     * 获取支持脱敏的数据库类型
-     *
-     * @return 支持脱敏的数据库列表
-     */
-    public static boolean getIsDDMSupportDbType(Integer code) {
-        
-        for (DBType dbType : DBType.values()) {
-            if (((int) dbType.getCode()) == code && dbType.isSupportDDM()) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * 获取支持脱敏的数据库类型
-     *
-     * @return 支持脱敏的数据库列表
-     */
-    public static List<Map<String, Object>> getDDMSupportDbList() {
-        
-        List<Map<String, Object>> supportDbList = new ArrayList<>();
-        for (DBType value : DBType.values()) {
-            if (value.isSupportDDM()) {
-                extractInfo(supportDbList, value);
-            }
-        }
-        return supportDbList;
-    }
 }
 ```
+[mapstruct帮助手册](docs/mapstruct.pdf)
 
-##### 四、Java 对象属性复制规范
+##### 五、安全规范
+```
+1、用户敏感数据禁止直接展示，必须对展示数据进行脱敏；
+2、用户输入的SQL参数严格使用参数绑定或者METADATA字段值限定，防止SQL注入，禁止字符串拼接SQL访问数据库；
+3、配置文件中的密码需要加密；
+```
 
-使用mapstruct 简化属性复制
-pom配置参考
+##### 六、mysql数据库
 ```
-   <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>1.5.5.Final</version>
-        </dependency>
+1、表名、字段名必须使用小写字母或数字，禁止出现数字开头禁止两个下划线中间只出现数字。数据库字段名的修改代价很大，因为无法进行预发布，所以字段名称需要慎重考虑；
+   MySQL在Windows下不区分大小写，但在Linux下默认是区分大小写。因此，数据库名、表名、字段名，都不允许出现任何大写字母，避免节外生枝。
+   正例：aliyun_admin，rdc_config，level3_name
+   反例：AliyunAdmin，rdcConfig，level_3_nam
+2、禁用保留字，如desc、range、match、delayed等，请参考MySQL官方保留字;   
+3、表必备三个字段：自增id，创建时间、更新时间；配置表可不使用自增主键；
+4、不得使用外键与级联，一切外键概念必须在应用层解决；
+5、禁止使用存储过程，存储过程难以调试和扩展，更没有移植性；
+6、超过三个表禁止join。需要join的字段，数据类型保持绝对一致；多表关联查询时，保证被关联的字段需要有索引；
+7、在varchar字段上建立索引时，必须指定索引长度，没必要对全字段建立索引，根据实际文本区分度决定索引长度；
 ```
-和lombok冲突配置参考
-```
- <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>org.mapstruct</groupId>
-                                <artifactId>mapstruct-processor</artifactId>
-                                <version>1.5.5.Final</version>
-                            </path>
-                            <path>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
-                                <version>1.18.20</version>
-                            </path>
-                            <path>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok-mapstruct-binding</artifactId>
-                                <version>0.2.0</version>
-                            </path>
-                        </annotationProcessorPaths>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-```
-[帮助手册](docs/mapstruct.pdf)
 
-##### 五、Java 固定业务模式规范
 
-##### 六、Java oem 代码规范
+##### 七、Java oem 相关建议
 1、oem包代码结构规范
 ```Java
 
