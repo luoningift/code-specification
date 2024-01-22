@@ -192,8 +192,9 @@ public class AmProduct implements Serializable {
     private LocalDateTime updatedAt;
 
 }
-9、对象属性复制使用mapstruct 参考：http://git.csdev.com/toolkit/code-specification/-/blob/main/java-project-specification/src/main/java/cn/datafort/model/ObjectMapper.java
-10、常量定义使用enum、方便扩展；
+9、推荐使用mybatis-plus LambdaWrapper完成简单的查询，复杂查询使用xml；
+10、对象属性复制使用mapstruct 参考：http://git.csdev.com/toolkit/code-specification/-/blob/main/java-project-specification/src/main/java/cn/datafort/model/ObjectMapper.java
+11、常量定义使用enum、方便扩展；
  enum DBType {
     
     ORACLE(0, "Oracle", 1521, 1, 1, 1, new String[]{"9.1.0.1", "9.2.0.1", "9.2.0.2", "9.2.0.4", "10.1.0.1", "10.1.0.2", "10.1.0.3", "10.1.0.4", "10.2.0.1", "10.2.0.2", "10.2.0.3", "10.2.0.4", "11.1.0.1", "11.1.0.2", "11.1.0.3", "11.1.0.4", "11.1.0.5", "11.1.0.6", "11.1.0.7", "11.2.0.1", "11.2.0.2", "11.2.0.3", "11.2.0.4", "12.1.0.1", "12.1.0.2", "12.2.0.1", "12.2.0.2", "unknown"}),
