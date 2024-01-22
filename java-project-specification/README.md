@@ -254,6 +254,7 @@ public class AmProduct implements Serializable {
         return Arrays.stream(DBType.values()).filter(e -> e.getDefaultPort() == port).findFirst().orElse(DBType.OTHER);
     }
 }
+12、禁止使用除get post之外的接口定义方式。
 ```
 [mapstruct帮助手册](docs/mapstruct.pdf)
 
