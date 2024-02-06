@@ -1,7 +1,9 @@
 package cn.datafort.controller;
 
 import cn.datafort.constant.RepVo;
+import cn.datafort.model.dto.BasePageInfoDto;
 import cn.datafort.model.dto.ProductDto;
+import cn.datafort.model.dto.UserDto;
 import cn.datafort.model.vo.ProductVo;
 import cn.datafort.service.ProductService;
 import io.swagger.annotations.Api;
@@ -34,6 +36,14 @@ public class ProductController {
         
         productService.add(product);
         return RepVo.SUCCESS();
+    }
+    
+    @ApiOperation(value = "继承测试")
+    @PostMapping("/test")
+    public RepVo<UserDto> allowResponseEntity(@RequestBody @Validated UserDto user){
+    
+        System.out.println(((BasePageInfoDto)user).toString());
+        return new RepVo<>(user);
     }
     
     @ApiOperation(value = "获取产品列表")

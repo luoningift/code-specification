@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
 
         // 参数校验未通过
         if (e instanceof MethodArgumentNotValidException) {
-            return new RepVo<>(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "参数校验未通过");
+            return new RepVo<>(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), e.getMessage());
         }
 
         if (e instanceof MissingServletRequestParameterException) {

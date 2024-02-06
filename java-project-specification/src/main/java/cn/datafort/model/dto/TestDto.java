@@ -9,8 +9,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@ObjectFields
 @Data
+@ObjectFields
 public class TestDto implements ObjectFieldsValidatorInterface {
     
     @NotNull(message = "不能为空")
@@ -25,6 +25,7 @@ public class TestDto implements ObjectFieldsValidatorInterface {
     @Valid
     private List<TestChildDto> testChildDtoList;
     
+    @Override
     public void multiFieldsValidator() {
         
         if (min == null || max == null) {
