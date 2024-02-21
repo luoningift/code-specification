@@ -1,18 +1,20 @@
-#### Java代码规范
+### Java代码规范
+#### 一、名词解释
+- 大驼峰法：变量名或者函数名称由一个或者多个单词连结在一起，形成唯一识别字时，单词首字母采用大写模式，常用于类名等，如DatabaseUser
+- 小驼峰法：变量名或者函数名称由一个或者多个单词连结在一起，形成唯一识别字时, 第一个单词以小写字母开始，从第二个单词开始以后的每个单词都采用大写字母，常用于变量等，如studentCount
 
-#### 一、web项目工程结构
-```
-java 项目统一使用spring boot开发web项目
-
+#### 二、WEB开发开发基本依赖规范
 必须依赖的组件为swagger2，mapstruct，log4j2，mybatis-plus，lombok, spring validation等
 
-工程基本结构：
+#### 三、web项目工程结构
+###### 1、工程基本结构
+```
 ├── controller  请求处理层
 │   ├── ProductController.java
 │   ├── SwaggerDemoController.java
 │   ├── SwaggerI18nDemoController.java
 │   └── TestController.java
-├── dao         数据访问层
+├── dao         数据访问层 文件名与数据库表名称保持一致 比如：表名为user_role 则数据库访问层的表名为UserRoleDao.java
 │   ├── AmProductDao.java
 │   ├── AmSupplierDao.java
 │   └── TestDao.java
@@ -36,6 +38,10 @@ java 项目统一使用spring boot开发web项目
 │   │   └── TestServiceImpl.java
 │   ├── ProductService.java    业务接口定义
 │   └── TestService.java
+```
+请求处理层规范
+```
+符合
 ```
 
 #### 二、日志规范

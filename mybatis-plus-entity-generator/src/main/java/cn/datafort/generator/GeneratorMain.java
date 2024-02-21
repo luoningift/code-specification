@@ -81,7 +81,7 @@ public class GeneratorMain {
                 public String outputFile(TableInfo tableInfo) {
             
                     // 自定义输出文件名
-                    return projectPath + "/src/main/resources/mapper/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
+                    return projectPath + "/src/main/resources/mapper/" + tableInfo.getEntityName() + "Dao" + StringPool.DOT_XML;
                 }
             });
     
@@ -170,7 +170,7 @@ public class GeneratorMain {
             public String outputFile(TableInfo tableInfo) {
                 
                 // 自定义输出文件名
-                return projectPath + "/src/main/resources/mapper/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
+                return projectPath + "/src/main/resources/mapper/" + tableInfo.getEntityName() + "Dao" + StringPool.DOT_XML;
             }
         });
         
