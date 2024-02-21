@@ -1,6 +1,7 @@
 package cn.datafort.web.common.validation;
 
 import cn.datafort.exception.BusinessException;
+import org.hibernate.validator.HibernateValidator;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -10,7 +11,7 @@ import java.util.Set;
 
 public class ValidateUtil {
     
-    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private static final Validator validator = Validation.byProvider(HibernateValidator.class).configure().failFast(true).buildValidatorFactory().getValidator();;
     
     public static <T> void validate(T t) {
         

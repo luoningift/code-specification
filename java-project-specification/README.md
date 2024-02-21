@@ -89,7 +89,7 @@ public class AmProduct implements Serializable {
 #### 五、WEB项目开发规范
 ##### 1、http状态码及返回值格式定义
 - http状态码禁止使用除200外的其他状态码，如401，501，301，302等禁止使用，原因公司Java开发以接口开发为主，http状态码由前端控制，页面跳转等
-- 接口返回值定义 为区分http状态码，返回值以1000为接口返回成功的状态，其他状态码为状态码：1000 返回成功，1999 当前用户状态未启用，2000 模块授权失败， 2001 用户权限不足，2002 身份识别错误 需要登陆, 3000 参数校验不通过错误，4000 数据错误， 7000其他错误 可在此基础上扩展
+- 接口返回值定义 为区分http状态码，返回值以1000为接口返回成功的状态，其他状态码：1999 当前用户状态未启用，2000 模块授权失败， 2001 用户权限不足，2002 身份识别错误 需要登陆, 3000 参数校验不通过错误，4000 数据错误， 7000其他错误 可在此基础上扩展
  ```json
 {
   "status": 1000,     
@@ -152,7 +152,7 @@ public class AmProduct implements Serializable {
 = }
 ```
 ##### 3、数据传输对象验证规范
-- 使用spring validation校验参数合法性
+- 所有web接口参数必须校验合法性；使用spring validation校验参数合法性；参数合法性校验在请求处理层或者dto中；参数校验可以写注解或者继承ObjectFieldsValidatorInterface接口java编码校验
 - spring validation配置为尽快结束模式，只要检测有一个格式错误就返回
 ```java
 
@@ -312,160 +312,78 @@ public class UserDto extends BasePageInfoDto implements ObjectFieldsValidatorInt
     }
 }
 ```
+##### 4、entity数据对象规范
+- entity数据对象规范 需包含swagger类注解和属性注解，mybatis-plus的类注解和属性注解 参考项目: [entity数据对象自动生成](http://git.csdev.com/toolkit/code-specification/-/blob/main/mybatis-plus-entity-generator/src/main/java/cn/datafort/generator/GeneratorMain.java)
+```java
 
-
-#### 三、java开发规范
-```
-1、任何数据结构的构造或初始化时需指定容量大小；
-2、不推荐使用JsonObject,Map,Propertity等数据结构；
-```
-
-#### 四、web项目开发规范
-```
-1、 
-2、 禁止在WEB开发中使用JsonObject、Map、Property等数据结构；
-3、 在web接口参数不超过三个(基础类型 boolean Integer String等)时，可不用新建实体dto类，超过三个参数时需要新建dto类接收参数；
-4、 所有web接口参数必须校验合法性；使用spring validation校验参数合法性；参数合法性校验在请求处理层或者dto中；参数校验可以写注解或者继承ObjectFieldsValidatorInterface接口java编码校验;
-    三个参数以下校验：
-      @Slf4j
-@Api(tags = "代码规范例子代码-产品管理")
-@RestController
-@RequestMapping(value = "/product",produces = MediaType.APPLICATION_JSON_VALUE)
-@Validated
-public class ProductController {
-    
-    @Autowired
-    private ProductService productService;
-    
-    @ApiOperation(value = "获取产品列表")
-    @ApiImplicitParams(
-            @ApiImplicitParam(name = "name",value = "产品名称",required = true)
-    )
-    @GetMapping("/search")
-    public RepVo<List<ProductVo.AmProduct>> get(@RequestParam("name") @NotNull @Length(min = 2, max = 10, message = "产品名称不能为空且字数范围为2到10") String name){
-        
-        return new RepVo<>(productService.search(name));
-    }
-}
-    超过三个参数使用dto进行校验:
-        @ApiOperation(value = "添加产品")
-    @PostMapping("/add")
-    public RepVo<Object> allowResponseEntity(@RequestBody @Validated ProductDto.AmProduct product){
-        
-        productService.add(product);
-        return RepVo.SUCCESS();
-    }
-    
-     @Data
-    @ApiModel(value="产品类型请求体", description="产品类型")
-    @ObjectFields
-    class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
-        
-        private static final long serialVersionUID = 1L;
-        
-        @ApiModelProperty(value = "主键")
-        private Integer id;
-        
-        @ApiModelProperty(value = "产品名称")
-        private String name;
-        
-        @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
-        private Integer isEngine;
-        
-        @ApiModelProperty(value = "描述")
-        private String description;
-    
-        @Override
-        public void multiFieldsValidator() {
-            
-            if (name == null || name.length() <= 0 || name.length() > 10) {
-                throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "产品名称不能为空且不能超过10个字");
-            }
-            boolean engineFlag = false;
-            for (ProductEngineConst value : ProductEngineConst.values()) {
-                if (value.getCode() == isEngine) {
-                    engineFlag = true;
-                    break;
-                }
-            }
-            if (!engineFlag) {
-                throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "未选择是否需要选择引擎");
-            }
-    
-            if (description == null || description.length() <= 0 || description.length() > 10) {
-                throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "描述信息不能为空且不能超过10个字");
-            }
-        }
-    }
-5、在请求处理层不包含业务逻辑代码；
-6、返回值格式定义：
-{
-  "status": 1000,     状态码：1000 返回成功，1999 当前用户状态未启用，2000 模块授权失败， 2001 用户权限不足，2002 身份识别错误 需要登陆, 3000 参数校验不通过错误，4000 数据错误， 7000其他错误 可在此基础上扩展
-  "message": "操作成功!",  状态码非1000时，详细错误的描述信息
-  "data": [           具体的业务数据
-    {
-      "id": 7,
-      "name": "10",
-      "isEngine": 1,
-      "description": "10"
-    },
-    {
-      "id": 8,
-      "name": "10",
-      "isEngine": 1,
-      "description": "10"
-    },
-    {
-      "id": 9,
-      "name": "10",
-      "isEngine": 1,
-      "description": "10"
-    }
-  ]
-}   
-7、在接收参数和返回值中尽量不要有null，0 代表全部 状态类的参数定义不要使用0这个值，从1开始定义；
-8、entity数据对象规范 需包含swagger类注解和属性注解，mybatis-plus的类注解和属性注解 参考项目：http://git.csdev.com/toolkit/code-specification/-/blob/main/mybatis-plus-entity-generator/src/main/java/cn/datafort/generator/GeneratorMain.java 自动生成数据对象
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("am_product")
 @ApiModel(value="AmProduct对象", description="产品类型")
 public class AmProduct implements Serializable {
-
+    
     private static final long serialVersionUID = 1L;
-
+    
     @ApiModelProperty(value = "主键")
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-
+    
     @ApiModelProperty(value = "产品名称")
     @TableField("name")
     private String name;
-
+    
     @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
     @TableField("is_engine")
     private Integer isEngine;
-
+    
     @ApiModelProperty(value = "1 正常 2 删除")
     @TableField("status")
     private Integer status;
-
+    
     @ApiModelProperty(value = "描述")
     @TableField("description")
     private String description;
-
+    
     @ApiModelProperty(value = "创建时间")
     @TableField("created_at")
     private LocalDateTime createdAt;
-
+    
     @ApiModelProperty(value = "更新时间")
     @TableField("updated_at")
     private LocalDateTime updatedAt;
-
 }
-9、推荐使用mybatis-plus LambdaWrapper完成简单的查询，复杂查询使用xml；
-10、对象属性复制使用mapstruct 参考：http://git.csdev.com/toolkit/code-specification/-/blob/main/java-project-specification/src/main/java/cn/datafort/model/ObjectMapper.java
-11、常量定义使用enum、方便扩展；
- enum DBType {
+```
+##### 5、数据库操作规范
+- 推荐使用mybatis-plus LambdaWrapper完成简单的增删改查，复杂查询使用xml
+
+##### 6、禁止使用除get post之外的接口定义方式，不推荐restful格式的接口请求地址定义
+- 市面上部分安全软件会认为除get和post外的方法为不安全，使用get和post之外的请求方式可能导致产品的安全合规检查不通过
+- restful方式的接口定义导致后续的统计分析困难
+```
+不使用restful的接口定义有一组日志数据
+getUser
+getUserRole
+getOrderList
+可以使用一个linux命令统计出每个地址的访问次数 cat xxx.log | sort | uniq -c | sort -nr | head -n 10
+
+使用restful的接口定义的一组日志数据
+user/1/2
+user/1/role/2
+user/1/name/3
+role/1/name/334
+统计较麻烦，增加维护成本
+```
+
+##### 7、其他规范
+- 临时对象中除dto和entity之外的所有对象命名方式使用Vo结尾
+- 任何数据结构的构造或初始化时需指定容量大小
+- 禁止在web开发中使用JsonObject,Propertity等范性化的数据结构
+- 在请求处理层不包含业务逻辑代码
+- 在java类属性及数据库表字段定义中不推荐null，0等值， 在接收参数中使用0代表全部；
+- 对象属性复制使用mapstruct [参考代码](http://git.csdev.com/toolkit/code-specification/-/blob/main/java-project-specification/src/main/java/cn/datafort/model/ObjectMapper.java) [帮助手册](docs/mapstruct.pdf)
+- 常量定义推荐使用enum，方便扩展
+```java
+enum DBType {
     
     ORACLE(0, "Oracle", 1521, 1, 1, 1, new String[]{"9.1.0.1", "9.2.0.1", "9.2.0.2", "9.2.0.4", "10.1.0.1", "10.1.0.2", "10.1.0.3", "10.1.0.4", "10.2.0.1", "10.2.0.2", "10.2.0.3", "10.2.0.4", "11.1.0.1", "11.1.0.2", "11.1.0.3", "11.1.0.4", "11.1.0.5", "11.1.0.6", "11.1.0.7", "11.2.0.1", "11.2.0.2", "11.2.0.3", "11.2.0.4", "12.1.0.1", "12.1.0.2", "12.2.0.1", "12.2.0.2", "unknown"}),
     SQLSERVER(1, "SQL Server", 1433, 0, 1, 1, new String[]{"SQL Server2000（8.0）", "SQL Server2005（9.0）", "SQL Server2008(10.0)", "SQL Server2008R2(10.50)", "SQL Server2012(11.0)", "SQL Server2014(12.0)", "SQL Server2016(13.0)", "SQL Server2017(14.0)", "unknown"}),
@@ -523,34 +441,30 @@ public class AmProduct implements Serializable {
     public static DBType getDbTypeByPort(int port) {
         return Arrays.stream(DBType.values()).filter(e -> e.getDefaultPort() == port).findFirst().orElse(DBType.OTHER);
     }
-}
-12、禁止使用除get post之外的接口定义方式。
-```
-[mapstruct帮助手册](docs/mapstruct.pdf)
-
-##### 五、安全规范
-```
-1、用户敏感数据禁止直接展示，必须对展示数据进行脱敏；
-2、用户输入的SQL参数严格使用参数绑定或者METADATA字段值限定，防止SQL注入，禁止字符串拼接SQL访问数据库；
-3、配置文件中的密码需要加密；
-```
-
-##### 六、mysql数据库
-```
-1、表名、字段名必须使用小写字母或数字，禁止出现数字开头禁止两个下划线中间只出现数字。数据库字段名的修改代价很大，因为无法进行预发布，所以字段名称需要慎重考虑；
-   MySQL在Windows下不区分大小写，但在Linux下默认是区分大小写。因此，数据库名、表名、字段名，都不允许出现任何大写字母，避免节外生枝。
-   正例：aliyun_admin，rdc_config，level3_name
-   反例：AliyunAdmin，rdcConfig，level_3_nam
-2、禁用保留字，如desc、range、match、delayed等，请参考MySQL官方保留字;   
-3、表必备三个字段：自增id，创建时间、更新时间；配置表可不使用自增主键；
-4、不得使用外键与级联，一切外键概念必须在应用层解决；
-5、禁止使用存储过程，存储过程难以调试和扩展，更没有移植性；
-6、超过三个表禁止join。需要join的字段，数据类型保持绝对一致；多表关联查询时，保证被关联的字段需要有索引；
-7、在varchar字段上建立索引时，必须指定索引长度，没必要对全字段建立索引，根据实际文本区分度决定索引长度；
 ```
 
 
-##### 七、Java oem 相关建议
+##### 六、安全规范
+- 用户敏感数据禁止直接展示，必须对展示数据进行脱敏
+- 用户输入的SQL参数严格使用参数绑定或者METADATA字段值限定，防止SQL注入，禁止字符串拼接SQL访问数据库
+- 配置文件中的密码需要加密
+
+##### 七、mysql数据库
+- 表名、字段名必须使用小写字母或数字，禁止出现数字开头禁止两个下划线中间只出现数字。数据库字段名的修改代价很大，因为无法进行预发布，所以字段名称需要慎重考虑；
+```
+        MySQL在Windows下不区分大小写，但在Linux下默认是区分大小写。因此，数据库名、表名、字段名，都不允许出现任何大写字母，避免节外生枝。
+        正例：aliyun_admin，rdc_config，level3_name
+        反例：AliyunAdmin，rdcConfig，level_3_nam
+```
+- 禁用保留字，如desc、range、match、delayed等，请参考MySQL官方保留字;   
+- 表必备三个字段：自增id，创建时间、更新时间；配置表可不使用自增主键；
+- 不得使用外键与级联，一切外键概念必须在应用层解决；
+- 禁止使用存储过程，存储过程难以调试和扩展，更没有移植性；
+- 超过三个表禁止join。需要join的字段，数据类型保持绝对一致；多表关联查询时，保证被关联的字段需要有索引；
+- 在varchar字段上建立索引时，必须指定索引长度，没必要对全字段建立索引，根据实际文本区分度决定索引长度；
+
+
+##### 八、Java oem 相关建议
 1、oem包代码结构规范
 ```Java
 
