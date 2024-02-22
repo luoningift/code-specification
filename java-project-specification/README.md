@@ -81,7 +81,7 @@ public class AmProduct implements Serializable {
 - 数据传输对象文件命名符合大驼峰法且以Dto结尾
 - 在数据传输对象中完成数据格式校验，禁止将数据格式校验逻辑扩散到Controller和Service
 
-##### 5、model层临时对象规范
+##### 7、model层临时对象规范
 - 禁止在属性中出现java基础类型，统一使用包装类 正例 Integer Boolean 反例 int boolean
 
 
@@ -568,8 +568,9 @@ OtherErrException
 ```
 - Controller及Service的返回值需明确表达含义且格式唯一 禁止使用Object等不能唯一表达返回值的对象
 - Service返回值不能使用统一的范型包装返回值 禁止出现RepVo类似的返回值
-- Controller返回值需明确指定返回的对象类型 反例 RepVo RepVo<Object> 正例RepVo<User> RepVo<List<User>> 
-- Controller返回值 原则上不建议返回基础类型和map 反例 RepVo<Integer>  RepVo<Boolean> RepVo<Map<String, User>>
+- Controller返回值需明确指定返回的对象类型 反例 RepVo RepVo< Object > RepVo<List<Object>> RepVo<Map<String, Object>> 正例RepVo<User> RepVo<List<User>> 
+- Controller返回值 原则上不建议返回基础类型和map 反例 RepVo< Integer >  RepVo< Boolean > RepVo<Map<String, User>>
+- 禁止在Controller，Service层返回值中出现Map和Object等关键字
 ```
     正例：
     
