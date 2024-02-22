@@ -81,6 +81,10 @@ public class AmProduct implements Serializable {
 - 数据传输对象文件命名符合大驼峰法且以Dto结尾
 - 在数据传输对象中完成数据格式校验，禁止将数据格式校验逻辑扩散到Controller和Service
 
+##### 5、model层临时对象规范
+- 禁止在属性中出现java基础类型，统一使用包装类 正例 Integer Boolean 反例 int boolean
+
+
 #### 四、日志规范
 - 统一使用log4j2日志组件，使用lombok Slf4j注解声明日志实例
 - 禁止在Dto、Vo、Entity等临时对象声明@Slf4j
@@ -374,7 +378,255 @@ role/1/name/334
 统计较麻烦，增加维护成本
 ```
 
-##### 7、其他规范
+##### 7、方法返回值规范及错误处理
+- 错误处理统一使用抛出异常的方式
+原因：使用其他方式导致代码中的方法返回值不明确，只能范性化处理，比如使用Object、RepVo、RepVo<Object>当返回值，导致代码阅读困难
+```
+//反例1：在service层直接使用Object作为返回值, 同时使用统一的范型包装类在业务逻辑中处理的错误和正确信息
+ /**
+     * @Auth: lys
+     * Description: 普通登录检验登陆用户信息
+     * @Date:16:19 2017/8/21 0021
+     */
+    @Transactional
+    @Override
+    public Object checkExist(String name, String password, RepVo msg, HttpSession session) {
+        User user = this.userDao.selectUserByName(name);
+        if (user == null) {
+            msg.setMessage("用户名或密码错误！");
+            msg.setStatus(ToolsConstant.Status.DATA_ERROR);
+            return msg;
+        } else {
+            //默认用户不允许登录
+            if (user.getRoleId() == 7) {
+                msg.setMessage("用户未授权！");
+                msg.setStatus(ToolsConstant.Status.DATA_ERROR);
+                return msg;
+            }
+            //查询账户安全配置
+            UserConfig userConfig = this.userConfigDao.selectUserSafe(1);
+            if (userConfig == null) {
+                userConfig = new UserConfig();
+            }
+            long time = System.currentTimeMillis();
+
+            //安全登录时间差
+            long timeDifference = time - userConfig.getLogTm() * 1000L;
+            //登录失败次数
+            int errorCount = userDao.getCountByUserId(user.getId(), timeDifference);
+            user.setLastLogin(time);
+            long updateTime = 0L;
+            //开启了密码过期配置
+            if (userConfig.getPwdExpire()) {
+                //获取安全配置的修改时间 此时间只有在开启过期按钮操作的时候存在
+                long configUpdateTime = userConfig.getUpdateTime().getTime();
+                //获取用户最后修改时间 此修改时间只是在授权新建用户或者修改密码的时候会存在值
+                long userUpdateTime = user.getLastModify();
+                //判断安全配置的修改时间和用户最后的修改时间那一个距离当前时间最近
+                updateTime = configUpdateTime > userUpdateTime ? configUpdateTime : userUpdateTime;
+            }
+            if (user.getExpireTime() != 0L && (userConfig.getLogLock() * 60000L + user.getExpireTime()) > time) {//用户锁定
+                msg.setMessage("该用户已被锁定，请" + ((user.getExpireTime() + userConfig.getLogLock() * 60000L) - time) / 1000L + "秒后再登录！");
+                msg.setStatus(ToolsConstant.Status.OTHER);
+                return msg;
+            } else if (userConfig.getPwdExpire() && (time - updateTime > userConfig.getExpire() * 24 * 60 * 60000L)) {//过期判断
+                msg.setMessage("该用户的密码已过期不能登录！请联系管理员！");
+                msg.setStatus(ToolsConstant.Status.POWER_USER_PSWORDTIMEOUT);
+                return msg;
+            } else {
+                // 提出密文
+                String key = user.getKeyValue().substring(0, 128);
+                if (PBKDF2Util.authenticate(password, key, user.getKeyValue().replaceAll(key, ""))) {
+                    session.setAttribute(ToolsConstant.CURRENT_USER_KEY, user);
+                    Role role = roleDao.getRoleById(user.getRoleId());
+                    if (role != null) {
+                        Map<String, Object> map = getRightsToMap(role);
+                        session.setAttribute(ToolsConstant.CURRENT_USER_RIGHTS_KEY, map);
+                    }
+                    user.setLastLogin(time);
+                    //设置session失效时间
+                    session.setMaxInactiveInterval(userConfig.getSessionTimeout() * 60);
+                    //更新用户信息
+                    this.userDao.updateUser(user);
+
+                    if (user.isUkStatus()) {
+                        this.userDao.updateUserUK(user);
+                    }
+
+                    //删除登录用户对应的错误登录日志
+                    this.userDao.deleteByUserErrorloginId(user.getId());
+                    msg.setMessage("登录成功");
+                    msg.setStatus(ToolsConstant.Status.SUCCESS);
+                    return user;
+                } else {
+                    if ((time - user.getLastLogin()) > userConfig.getLogTm() * 1000L) {
+                        this.userDao.deleteByUserErrorloginId(user.getId());
+                    }
+                    //添加错误记录
+                    this.userDao.insertUserLogin(new UserErrorLogin(user.getId(), time));
+                    session.setMaxInactiveInterval(userConfig.getSessionTimeout() * 60);
+                    int co = userConfig.getLogCount() - errorCount;
+                    if (co > 1) {//未锁定
+                        long loginremtime = userConfig.getLogTm() - (time - user.getLastLogin()) / 1000L;
+                        msg.setMessage("用户名或密码错误，" + loginremtime + "秒内，您再连续输入" + (co - 1) + "次错误密码，您的帐号将被锁定！");
+                        msg.setStatus(ToolsConstant.Status.OTHER);
+                    } else {//已锁定
+                        user.setExpireTime(time);
+                        msg.setMessage("用户名或密码错误，帐号已被锁定，" + userConfig.getLogLock() * 60 + "秒后再登录！");
+                        msg.setStatus(ToolsConstant.Status.OTHER);
+                    }
+                    this.userDao.updateUser(user);
+                    return msg;
+                }
+            }
+        }
+    }
+```
+```
+    //反例2：在service层直接使用Object作为返回值
+    @Override
+    public List<Map<String, Object>> queryAccountTableList(Map<String, Object> params) {
+        List<Map<String, Object>> result = accountDao.queryTableList(params);
+        for (Map<String, Object> map : result) {
+            Integer tableId = Integer.parseInt(map.get("id").toString());
+            map.putAll(accountDao.queryMarkInfoByTableId(tableId));
+            Map<String, Object> categoryLabelIdAndNameByIds = null;
+            if (map.get("categoryIds") != null) {
+                categoryLabelIdAndNameByIds = CategoryUtils.getCategoryLabelIdAndNameByIds(Arrays.stream(map.get("categoryIds").toString().split(",")).map(Integer::parseInt).collect(toList()));
+                map.put("categoryLabels", categoryLabelIdAndNameByIds.get("names"));
+            } else {
+                map.put("categoryLabels", null);
+            }
+            map.put("levelLabels", accountDao.queryTableLevelInfo(tableId));
+            map.putAll(accountDao.querySenInfoByTableId(tableId));
+            if (!CollectionUtils.isEmpty(categoryLabelIdAndNameByIds)) {
+                List<CategoryLabelVo> category = (List<CategoryLabelVo>) categoryLabelIdAndNameByIds.get("category");
+                List<Integer> signList = category.stream().map(CategoryLabelVo::getSign).collect(toList());
+                if (signList.contains(1) && !signList.contains(2)) {
+                    map.put("sign", 1);
+                }
+                if (signList.contains(2) && !signList.contains(1)) {
+                    map.put("sign", 2);
+                }
+                if (!signList.contains(1) && !signList.contains(2)) {
+                    map.put("sign", 0);
+                }
+            }
+        }
+        return result;
+    }
+```
+```
+    //反例3：在service层直接使用统一的范型包装类, 错误信息使用返回值的方式处理
+    @Override
+    public RepVo addFtpAuditPoint(FtpAuditPoint point) {
+        //判断是否添加相同ip和端口的引擎
+        List<FtpAuditPoint> point2 = this.ftpAduitPointDao.queryPointByIPandPort(point.getIp(), point.getPort());
+        if (point2 != null && point2.size() > 0) {
+            return new RepVo(ToolsConstant.Status.PARAM_CHECKFAIL, "相同IP和端口的引擎已存在!");
+        }
+        point.setAuditStatus((short) 1);
+        List<FtpRules> rules = this.ftpRulesDao.queryByIdAndDefault(0L, true);
+        StringBuilder ruleIds = new StringBuilder();
+        for (FtpRules rule : rules) {
+            ruleIds.append(rule.getId()).append(",");
+        }
+        if (ruleIds.length() > 0)
+            ruleIds.deleteCharAt(ruleIds.length() - 1);
+        point.setRuleIds(ruleIds.toString());
+        this.ftpAduitPointDao.savePoint(point);
+        //根据Ip和端口获取新增引擎的Id
+        List<FtpAuditPoint> pointlist = this.ftpAduitPointDao.queryPointByIPandPort(point.getIp(), point.getPort());
+        if (pointlist != null && pointlist.size() > 0) {
+            point.setId(pointlist.get(0).getId());
+            FtpAuditUtil.addEngine(point.getId(), rules);
+        }
+        return new RepVo();
+    }
+```
+- 异常类型分类 异常类统一继承RuntimeException
+```
+比如有以下几种错误信息
+1999 当前用户状态未启用，2000 模块授权失败， 2001 用户权限不足，2002 身份识别错误 需要登陆, 3000 参数校验不通过错误，4000 数据错误， 7000其他错误 可在此基础上扩展
+则异常类定义如下：
+//1999 当前用户状态未启用
+UserNotOpenException
+//2000 模块授权失败
+ModelAssignFailedException
+//2001 用户权限不足
+UserPowerErrException
+//2002 身份识别错误 需要登陆
+IdentityErrException
+//3000 参数校验不通过错误
+ParamsErrException
+//4000 数据错误 
+DataErrException
+//7000其他错误 可在此基础上扩展
+OtherErrException
+
+在程序运行中抛出以上异常信息，在统一的异常处理中将错误信息转换为统一的范型包装返回值
+```
+- Controller及Service的返回值需明确表达含义且格式唯一 禁止使用Object等不能唯一表达返回值的对象
+- Service返回值不能使用统一的范型包装返回值 禁止出现RepVo类似的返回值
+- Controller返回值需明确指定返回的对象类型 反例 RepVo RepVo<Object> 正例RepVo<User> RepVo<List<User>> 
+- Controller返回值 原则上不建议返回基础类型和map 反例 RepVo<Integer>  RepVo<Boolean> RepVo<Map<String, User>>
+```
+    正例：
+    
+    //Service层返回值明确
+    @Override
+    public List<DeviceApiVo> getApiList(JSONObject parameterJson) {
+        
+        //伪代码
+        if (数据错误) {
+            throw new DataErrException("数据错误");
+        }
+        
+        if (其他错误) {
+            throw new OtherErrException("地球炸了");
+        }
+        List<DeviceApiVo> apiList = apiAssetsDao.getApiList(parameterJson);
+        //将API集合中标签JSON转为集合
+        this.convertTagJson(apiList);
+        //设置API分类分级标签
+        this.buildApiCategoryAndLevel(apiList);
+        return apiList;
+    }
+    
+    //Controller层返回值使用统一的范型包装类 明确制定返回值
+     public RepVo<List<DeviceApi>> apiList(@RequestBody JSONObject parameterJson) {
+
+       List<DeviceApiVo> list = apiAssetsService.getApiList(parameterJson);
+       return new RepVo<>(list); 
+    }
+```
+
+##### 8、其他规范
+- 禁止一个Controller的方法返回多种不同格式的数据
+反例：
+```
+    @RequestMapping(value = "/account-list", method = RequestMethod.POST)
+    public RepVo accountList(@RequestBody JSONObject parameterJson, HttpServletRequest request) {
+        Integer srcId = parameterJson.getInteger("srcId");
+        if (Objects.isNull(srcId)) {
+            throw new DagRuntimeException("ID_IS_NULL");
+        }
+        userInfoCacheService.checkUserAuth(Collections.singletonList(srcId), UserUtil.getToken(request), TokenRedisType.GROUP_SRC_RES);
+
+        if (!StringUtils.isEmpty(parameterJson.getString("keyWord")) && parameterJson.getString("keyWord").length() > 255) {
+            throw new DagRuntimeStatusException(CommonConstant.Status.PARAM_CHECKFAIL, "查询项有误");
+        }
+        if (PageUtil.parsePage(parameterJson)) {
+            List<Map<String, Object>> result = accountCombService.queryAccountList(parameterJson);
+            Integer count = accountCombService.queryAccountListCount(parameterJson);
+            //一种返回格式
+            return new RepVo(new Page<>(result, count));
+        }
+        List<Map<String, Object>> result = accountCombService.queryAccountAllList(parameterJson);
+        //另外一种返回格式
+        return new RepVo(result);
+    }
+```
 - 临时对象中除dto和entity之外的所有对象命名方式使用Vo结尾
 - 任何数据结构的构造或初始化时需指定容量大小
 - 禁止在web开发中使用JsonObject,Propertity等范性化的数据结构
