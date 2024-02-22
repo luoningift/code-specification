@@ -696,6 +696,26 @@ enum DBType {
     }
 ```
 
+##### 六、命令行程序开发规范
+- 建议遵循WEB开发相关的目录规范和代码规范
+- 建议基于spring boot构建公共的代码库
+```
+//spring boot命令行程序启动配置
+public class App {
+    public static void main(String[] args) {
+        // 设置时区
+        TimeZone timeZone = TimeZone.getTimeZone("GMT+8");
+        TimeZone.setDefault(timeZone);
+        // web启动
+        //SpringApplication.run(App.class, args);
+        // 命令行程序启动 关闭tomcat等WEB服务启动
+        new SpringApplicationBuilder(App.class).web(WebApplicationType.NONE).run(args);
+    }
+}
+//其他问题
+使用spring security 需配置 @EnableGlobalMethodSecurity(prePostEnabled = true)
+使用websocket相关服务 需将相关的bean排除 因为WEB服务没了
+```
 
 ##### 六、安全规范
 - 用户敏感数据禁止直接展示，必须对展示数据进行脱敏
