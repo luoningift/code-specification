@@ -75,14 +75,14 @@ public class AmProduct implements Serializable {
 ##### 5、业务处理层规范
 - 业务接口定义文件命名符合大驼峰法且以Service结尾
 - 业务接口具体逻辑实现文件命名符合大驼峰法且以ServiceImpl结尾
-- 业务接口具体逻辑实现文件除实现业务接口定义文件外，禁止继承其他类文件或者接口, 比如继承Controller文件
+- 业务接口具体逻辑实现文件除实现业务接口及mysqlbatis-plus相关接口文件外，禁止继承其他类文件或者接口, 比如继承Controller文件
 
 ##### 6、数据传输对象规范
 - 数据传输对象文件命名符合大驼峰法且以Dto结尾
 - 在数据传输对象中完成数据格式校验，禁止将数据格式校验逻辑扩散到Controller和Service
 
 ##### 7、model层临时对象规范
-- 禁止在属性中出现java基础类型，统一使用包装类 正例 Integer Boolean 反例 int boolean
+- 禁止在属性中出现java基础类型，统一使用包装类 正例 Integer Boolean 反例 int boolean, 需要高性能的代码可酌情使用基础类型
 
 
 #### 四、日志规范
@@ -268,6 +268,7 @@ public class ProductController {
         }
     }
 ```
+- 公共属性定义通过范型方式定义 todo 
 - dto参数校验继承实现公共属性定义固定格式
 ```java
 @Data
@@ -380,7 +381,7 @@ role/1/name/334
 
 ##### 7、方法返回值规范及错误处理
 - 错误处理统一使用抛出异常的方式
-原因：使用其他方式导致代码中的方法返回值不明确，只能范性化处理，比如使用Object、RepVo、RepVo<Object>当返回值，导致代码阅读困难
+原因：使用其他方式导致代码中的方法返回值不明确，只能范性化处理，比如使用Object、RepVo、RepVo< Object >当返回值，导致代码阅读困难
 ```
 //反例1：在service层直接使用Object作为返回值, 同时使用统一的范型包装类在业务逻辑中处理的错误和正确信息
  /**
@@ -568,9 +569,10 @@ OtherErrException
 ```
 - Controller及Service的返回值需明确表达含义且格式唯一 禁止使用Object等不能唯一表达返回值的对象
 - Service返回值不能使用统一的范型包装返回值 禁止出现RepVo类似的返回值
-- Controller返回值需明确指定返回的对象类型 反例 RepVo RepVo< Object > RepVo<List<Object>> RepVo<Map<String, Object>> 正例RepVo<User> RepVo<List<User>> 
-- Controller返回值 原则上不建议返回基础类型和map 反例 RepVo< Integer >  RepVo< Boolean > RepVo<Map<String, User>>
+- Controller返回值需明确指定返回的对象类型 反例 RepVo RepVo< Object > RepVo< List< Object >> RepVo< Map< String, Object > > 正例RepVo< User > RepVo< List< User > > 
+- Controller返回值 原则上不建议返回基础类型和map 反例 RepVo< Integer >  RepVo< Boolean > RepVo< Map < String, User > >
 - 禁止在Controller，Service层返回值中出现Map和Object等关键字
+- RepVo序列化之后的json数据的data数据必须为{} 举例：{data: {status: 1}} , {data: {list: []}}, {data: {list: {username:1111, age:12}}}
 ```
     正例：
     
