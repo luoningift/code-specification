@@ -193,34 +193,50 @@ public class ProductController {
 }
 ```
 - 超过三个参数使用dto进行校验
+
 ```java
-    @ApiOperation(value = "添加产品")
-    @PostMapping("/add")
-    public RepVo<Object> allowResponseEntity(@RequestBody @Validated ProductDto.AmProduct product){
+    import cn.datafort.model.dto.ProductDto;
+import cn.datafort.web.common.validation.ObjectFields;
+
+import javax.validation.GroupSequence;
+
+@ApiOperation(value = "添加产品")
+@PostMapping("/add")
+public RepVo<Object> allowResponseEntity(@RequestBody @Validated ProductDto.AmProduct product){
         
         productService.add(product);
         return RepVo.SUCCESS();
-    }
+        }
+
+@Data
+@ApiModel(value = "产品类型请求体", description = "产品类型")
+@ObjectFields(groups = ObjectFields.class)
+@GroupSequence({ProductDto.AmProduct.class, ObjectFields.class})
+class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
     
-    @Data
-    @ApiModel(value="产品类型请求体", description="产品类型")
-    @ObjectFields
-    class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
+    private static final long serialVersionUID = 1L;
+    
+    @ApiModelProperty(value = "主键")
+    private Integer id;
+    
+    @ApiModelProperty(value = "产品名称")
+    private String name;
+    
+    @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
+    private Integer isEngine;
+    
+    @ApiModelProperty(value = "描述")
+    private String description;
+    
+    //数据关联验证
+    @Override
+    public void multiFieldsValidator() {
         
-        private static final long serialVersionUID = 1L;
-        
-        @ApiModelProperty(value = "主键")
-        private Integer id;
-        
-        @ApiModelProperty(value = "产品名称")
-        private String name;
-        
-        @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
-        private Integer isEngine;
-        
-        @ApiModelProperty(value = "描述")
-        private String description;
+        if (true) {
+            throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "未选择是否需要选择引擎");
+        }
     }
+}
 ```
 - dto参数校验固定格式
 ```java
@@ -315,6 +331,31 @@ public class UserDto extends BasePageInfoDto implements ObjectFieldsValidatorInt
         //throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "产品名称不能为空且不能超过10个字");
         super.multiFieldsValidator();
     }
+}
+```
+
+```java
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
+
+@Data
+@ApiModel(value = "分页查询", description = "分页查询")
+public class QueryEntity<F> {
+    
+    @NotNull(message = "PAGE_IS_NULL")
+    @Min(value = 1, message = "PAGE_MIN_VALUE")
+    @ApiModelProperty(value = "页数")
+    private int page;
+    
+    @NotNull(message = "PAGE_SIZE_IS_NULL")
+    @Min(value = -1, message = "PAGE_SIZE_MIN_VALUE")
+    @Max(value = 500, message = "PAGE_SIZE_MAX_VALUE")
+    @ApiModelProperty(value = "每页条目数")
+    private int limit;
+    
+    @Valid
+    @ApiModelProperty(value = "具体的限制条件")
+    private F filters;
 }
 ```
 ##### 4、entity数据对象规范
@@ -569,8 +610,8 @@ OtherErrException
 ```
 - Controller及Service的返回值需明确表达含义且格式唯一 禁止使用Object等不能唯一表达返回值的对象
 - Service返回值不能使用统一的范型包装返回值 禁止出现RepVo类似的返回值
-- Controller返回值需明确指定返回的对象类型 反例 RepVo RepVo< Object > RepVo< List< Object >> RepVo< Map< String, Object > > 正例RepVo< User > RepVo< List< User > > 
-- Controller返回值 原则上不建议返回基础类型和map 反例 RepVo< Integer >  RepVo< Boolean > RepVo< Map < String, User > >
+- Controller返回值需明确指定返回的对象类型 反例 RepVo RepVo< Object > RepVo< List< Object >> RepVo< Map< String, Object > > 正例RepVo< User > RepVo< ListRepVo < List< User > > > 
+- Controller返回值 禁止返回基础类型和map 反例 RepVo< Integer >  RepVo< Boolean > RepVo< Map < String, User > >
 - 禁止在Controller，Service层返回值中出现Map和Object等关键字
 - RepVo序列化之后的json数据的data数据必须为{} 举例：{data: {status: 1}} , {data: {list: []}}, {data: {list: {username:1111, age:12}}}
 ```
