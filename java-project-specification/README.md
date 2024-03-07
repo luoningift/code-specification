@@ -606,22 +606,15 @@ role/1/name/334
 - 异常类型分类 异常类统一继承RuntimeException
 ```
 比如有以下几种错误信息
-1999 当前用户状态未启用，2000 模块授权失败， 2001 用户权限不足，2002 身份识别错误 需要登陆, 3000 参数校验不通过错误，4000 数据错误， 7000其他错误 可在此基础上扩展
+
+  203代表密码过期，前端跳转到密码修改界面
+  401代表用户未授权，前端跳转到登陆页面
+  
 则异常类定义如下：
-//1999 当前用户状态未启用
-UserNotOpenException
-//2000 模块授权失败
-ModelAssignFailedException
-//2001 用户权限不足
+// 203 代表密码过期，前端跳转到密码修改界面
+PassExpireException
+// 401 用户未授权
 UserPowerErrException
-//2002 身份识别错误 需要登陆
-IdentityErrException
-//3000 参数校验不通过错误
-ParamsErrException
-//4000 数据错误 
-DataErrException
-//7000其他错误 可在此基础上扩展
-OtherErrException
 
 在程序运行中抛出以上异常信息，在统一的异常处理中将错误信息转换为统一的范型包装返回值
 ```
