@@ -783,7 +783,15 @@ public class App {
         反例：AliyunAdmin，rdcConfig，level_3_nam
 ```
 - 禁用保留字，如desc、range、match、delayed等，请参考MySQL官方保留字;   
-- 表必备三个字段：自增id，创建时间、更新时间；配置表可不使用自增主键；
+- 表必备四个字段：自增id，创建用户, 创建时间、更新时间； 配置表可不使用自增主键；历史表必备三个字段: 自增id，创建用户, 创建时间
+```
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间（自动填充）',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间（自动填充）',
+```
+- 表必备删除标识字段 invalid
+```
+  `invalid` tinyint UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Whether deleted: 0 No, 1 Yes',
+```
 - 不得使用外键与级联，一切外键概念必须在应用层解决；
 - 禁止使用存储过程，存储过程难以调试和扩展，更没有移植性；
 - 超过三个表禁止join。需要join的字段，数据类型保持绝对一致；多表关联查询时，保证被关联的字段需要有索引；
