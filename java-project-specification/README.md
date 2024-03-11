@@ -301,56 +301,7 @@ class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
         }
     }
 ```
-- 公共属性定义通过范型方式定义 todo 
-- dto参数校验继承实现公共属性定义固定格式
-```java
-@Data
-@ApiModel(value="分页", description="分页")
-@ObjectFields(groups = ObjectFields.class)
-@GroupSequence({BasePageInfoDto.class, ObjectFields.class})
-public class BasePageInfoDto implements ObjectFieldsValidatorInterface {
-    
-    @ApiModelProperty(value = "页数", example = "1")
-    @Min(value = 10, message = "最小值为10")
-    @Max(value = 20, message = "最大值为20")
-    @Range(max = 15, min = 12, message = "不符合数据范围")
-    private Integer page;
-    
-    @ApiModelProperty(value = "每页条目数", example = "1")
-    @Min(value = 10, message = "最小值为10")
-    @Max(value = 20, message = "最大值为20")
-    @Range(max = 15, min = 12, message = "不符合数据范围")
-    private Integer limit;
-    
-    public void multiFieldsValidator () {
-        System.out.println("mmmmm");
-        throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "xxxxx");
-    }
-}
-```
-```java
-@Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel(value="用户", description="用户")
-@ObjectFields(groups = ObjectFields.class)
-@GroupSequence({UserDto.class, ObjectFields.class})
-public class UserDto extends BasePageInfoDto implements ObjectFieldsValidatorInterface {
-    
-    @ApiModelProperty(value = "id", example = "1")
-    @Min(value = 10, message = "最小值为10")
-    @Max(value = 20, message = "最大值为20")
-    @Range(max = 15, min = 12, message = "不符合数据范围")
-    private Integer id;
-    
-    public void multiFieldsValidator () {
-        
-        System.out.println("xxxxx");
-        //throw new BusinessException(RepStatusEnum.PARAM_CHECK_FAIL.getStatus(), "产品名称不能为空且不能超过10个字");
-        super.multiFieldsValidator();
-    }
-}
-```
-
+- 公共属性定义通过范型方式定义 
 ```java
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
@@ -629,7 +580,7 @@ UserPowerErrException
     
     //Service层返回值明确
     @Override
-    public List<DeviceApiVo> getApiList(JSONObject parameterJson) {
+    public List<DeviceApiVo> getApiList() {
         
         //伪代码
         if (数据错误) {
@@ -639,7 +590,7 @@ UserPowerErrException
         if (其他错误) {
             throw new OtherErrException("地球炸了");
         }
-        List<DeviceApiVo> apiList = apiAssetsDao.getApiList(parameterJson);
+        List<DeviceApiVo> apiList = apiAssetsDao.getApiList();
         //将API集合中标签JSON转为集合
         this.convertTagJson(apiList);
         //设置API分类分级标签
@@ -648,10 +599,10 @@ UserPowerErrException
     }
     
     //Controller层返回值使用统一的范型包装类 明确制定返回值
-     public RepVo<List<DeviceApi>> apiList(@RequestBody JSONObject parameterJson) {
+     public RepVo<ListObject<List<DeviceApi>>> apiList() {
 
-       List<DeviceApiVo> list = apiAssetsService.getApiList(parameterJson);
-       return new RepVo<>(list); 
+       List<DeviceApiVo> list = apiAssetsService.getApiList();
+       return new RepVo<>(ListObject.wrap(list)); 
     }
 ```
 
@@ -783,8 +734,10 @@ public class App {
         反例：AliyunAdmin，rdcConfig，level_3_nam
 ```
 - 禁用保留字，如desc、range、match、delayed等，请参考MySQL官方保留字;   
-- 表必备四个字段：自增id，创建用户, 创建时间、更新时间； 配置表可不使用自增主键；历史表必备三个字段: 自增id，创建用户, 创建时间
+- 表必备四个字段：自增id、创建用户、 更新用户、 创建时间、更新时间； 配置表可不使用自增主键；历史表必备三个字段: 自增id，创建用户, 创建时间
 ```
+  `create_user_id` int UNSIGNED NOT NULL DEFAULT '0' COMMENT '创建用户',
+  `update_user_id` int UNSIGNED NOT NULL DEFAULT '0' COMMENT '更新用户',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间（自动填充）',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间（自动填充）',
 ```
