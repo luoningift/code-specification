@@ -6,8 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -22,32 +21,32 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("am_supplier")
-@ApiModel(value="AmSupplier对象", description="供应商信息表")
+@Schema(title="AmSupplier对象", description="供应商信息表")
 public class AmSupplier implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "设备ID")
+    @Schema(description  = "设备ID")
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty(value = "供应商名称")
+    @Schema(description  = "供应商名称")
     @TableField("name")
     private String name;
 
-    @ApiModelProperty(value = "描述")
+    @Schema(description  = "描述")
     @TableField("description")
     private String description;
 
-    @ApiModelProperty(value = "1 正常 2 删除")
+    @Schema(description  = "1 正常 2 删除")
     @TableField("status")
     private Integer status;
 
-    @ApiModelProperty(value = "创建时间")
+    @Schema(description  = "创建时间")
     @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @ApiModelProperty(value = "更新时间")
+    @Schema(description  = "更新时间")
     @TableField("updated_at")
     private LocalDateTime updatedAt;
 

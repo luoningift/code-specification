@@ -55,16 +55,16 @@
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("am_product")
-@ApiModel(value="AmProduct对象", description="产品类型")
+@Schema(title="AmProduct对象", description="产品类型")
 public class AmProduct implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键")
+    @Schema(description  = "主键")
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty(value = "用户名称列表")
+    @Schema(description  = "用户名称列表")
     @TableField("name_list")
     private String nameList;
     
@@ -154,21 +154,21 @@ public class AmProduct implements Serializable {
 - model对象swagger定义举例
 ```java
   @Data
-  @ApiModel(value="产品类型请求体", description="产品类型")
+  @Schema(title="产品类型请求体", description="产品类型")
   class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
         
         private static final long serialVersionUID = 1L;
         
-        @ApiModelProperty(value = "主键")
+        @Schema(description  = "主键")
         private Integer id;
         
-        @ApiModelProperty(value = "产品名称")
+        @Schema(description  = "产品名称")
         private String name;
         
-        @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
+        @Schema(description  = "1 需要选择引擎数量 2 不需要")
         private Integer isEngine;
         
-        @ApiModelProperty(value = "描述")
+        @Schema(description  = "描述")
         private String description;
 = }
 ```
@@ -226,23 +226,23 @@ public RepVo<Object> allowResponseEntity(@RequestBody @Validated ProductDto.AmPr
         }
 
 @Data
-@ApiModel(value = "产品类型请求体", description = "产品类型")
+@Schema(title = "产品类型请求体", description = "产品类型")
 @ObjectFields(groups = ObjectFields.class)
 @GroupSequence({ProductDto.AmProduct.class, ObjectFields.class})
 class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
     
     private static final long serialVersionUID = 1L;
     
-    @ApiModelProperty(value = "主键")
+    @Schema(description  = "主键")
     private Integer id;
     
-    @ApiModelProperty(value = "产品名称")
+    @Schema(description  = "产品名称")
     private String name;
     
-    @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
+    @Schema(description  = "1 需要选择引擎数量 2 不需要")
     private Integer isEngine;
     
-    @ApiModelProperty(value = "描述")
+    @Schema(description  = "描述")
     private String description;
     
     //数据关联验证
@@ -260,24 +260,24 @@ class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
     @Data //lombok注解
     @ObjectFields(groups = ObjectFields.class) //将参数关联验证定义组为ObjectFields.class 固定格式
     @GroupSequence({AmProduct.class, ObjectFields.class}) //定义验证顺序 先进行单属性验证 单属性验证通过后进行数据关联验证
-    @ApiModel(value="产品类型请求体", description="产品类型")
+    @Schema(title="产品类型请求体", description="产品类型")
     class AmProduct implements Serializable, ObjectFieldsValidatorInterface {
         
         private static final long serialVersionUID = 1L;
         
-        @ApiModelProperty(value = "主键")
+        @Schema(description  = "主键")
         @Min(value = 10, message = "最小值为10")
         @Max(value = 20, message = "最大值为20")
         @Range(max = 15, min = 12, message = "不符合数据范围")
         private Integer id;
         
-        @ApiModelProperty(value = "产品名称")
+        @Schema(description  = "产品名称")
         private String name;
         
-        @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
+        @Schema(description  = "1 需要选择引擎数量 2 不需要")
         private Integer isEngine;
         
-        @ApiModelProperty(value = "描述")
+        @Schema(description  = "描述")
         private String description;
         
         //数据关联验证
@@ -307,22 +307,22 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 
 @Data
-@ApiModel(value = "分页查询", description = "分页查询")
+@Schema(title = "分页查询", description = "分页查询")
 public class QueryEntity<F> {
     
     @NotNull(message = "PAGE_IS_NULL")
     @Min(value = 1, message = "PAGE_MIN_VALUE")
-    @ApiModelProperty(value = "页数")
+    @Schema(description  = "页数")
     private int page;
     
     @NotNull(message = "PAGE_SIZE_IS_NULL")
     @Min(value = -1, message = "PAGE_SIZE_MIN_VALUE")
     @Max(value = 500, message = "PAGE_SIZE_MAX_VALUE")
-    @ApiModelProperty(value = "每页条目数")
+    @Schema(description  = "每页条目数")
     private int limit;
     
     @Valid
-    @ApiModelProperty(value = "具体的限制条件")
+    @Schema(description  = "具体的限制条件")
     private F filters;
 }
 ```
@@ -333,36 +333,36 @@ public class QueryEntity<F> {
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("am_product")
-@ApiModel(value="AmProduct对象", description="产品类型")
+@Schema(title="AmProduct对象", description="产品类型")
 public class AmProduct implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
-    @ApiModelProperty(value = "主键")
+    @Schema(description  = "主键")
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
     
-    @ApiModelProperty(value = "产品名称")
+    @Schema(description  = "产品名称")
     @TableField("name")
     private String name;
     
-    @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
+    @Schema(description  = "1 需要选择引擎数量 2 不需要")
     @TableField("is_engine")
     private Integer isEngine;
     
-    @ApiModelProperty(value = "1 正常 2 删除")
+    @Schema(description  = "1 正常 2 删除")
     @TableField("status")
     private Integer status;
     
-    @ApiModelProperty(value = "描述")
+    @Schema(description  = "描述")
     @TableField("description")
     private String description;
     
-    @ApiModelProperty(value = "创建时间")
+    @Schema(description  = "创建时间")
     @TableField("created_at")
     private LocalDateTime createdAt;
     
-    @ApiModelProperty(value = "更新时间")
+    @Schema(description  = "更新时间")
     @TableField("updated_at")
     private LocalDateTime updatedAt;
 }

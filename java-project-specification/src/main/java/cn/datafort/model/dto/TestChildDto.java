@@ -2,7 +2,7 @@ package cn.datafort.model.dto;
 
 import cn.datafort.web.common.validation.ObjectFields;
 import cn.datafort.web.common.validation.ObjectFieldsValidatorInterface;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import javafx.scene.Parent;
 import lombok.Data;
 
@@ -14,11 +14,11 @@ import javax.validation.constraints.NotNull;
 public class TestChildDto implements ObjectFieldsValidatorInterface {
     
     @NotNull(message = "不能为空")
-    @ApiModelProperty(value = "最小值", example = "1")
+    @Schema(description = "最小值", example = "1")
     private Integer min;
     
     @NotNull(message = "不能为空")
-    @ApiModelProperty(value = "最大值", example = "1")
+    @Schema(description = "最大值", example = "1")
     private Integer max;
     
     @Override

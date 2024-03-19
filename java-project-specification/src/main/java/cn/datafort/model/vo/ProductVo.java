@@ -1,7 +1,6 @@
 package cn.datafort.model.vo;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -9,21 +8,21 @@ import java.io.Serializable;
 public interface ProductVo {
     
     @Data
-    @ApiModel(value="产品类型", description="产品类型")
+    @Schema(title="产品类型", description="产品类型")
     class AmProduct implements Serializable {
         
         private static final long serialVersionUID = 1L;
         
-        @ApiModelProperty(value = "主键")
+        @Schema(description  = "主键")
         private Integer id;
         
-        @ApiModelProperty(value = "产品名称")
+        @Schema(description  = "产品名称")
         private String name;
         
-        @ApiModelProperty(value = "1 需要选择引擎数量 2 不需要")
+        @Schema(description  = "1 需要选择引擎数量 2 不需要")
         private Integer isEngine;
         
-        @ApiModelProperty(value = "描述")
+        @Schema(description  = "描述")
         private String description;
     }
 }
