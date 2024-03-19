@@ -124,15 +124,15 @@ public class ZnjExpertConsultFastLanguageInsertDTO {
 # 四、页面访问
 
 > ```
-> http://ip:port/swagger-ui.html
+> http://ip:port/swagger-ui/index.html
 > ```
 
 ![](swagger3入门.assets/4ffedaf301894c2d89bb25a258f710fb~tplv-k3u1fbpfcp-zoom-in-crop-mark_1512_0_0_0.awebp)
 
 # 五、常用配置
 
-SpringDoc还有一些常用的配置可以了解下。
-
+~~SpringDoc还有一些常用的配置可以了解下。~~
+与示例项目版本不一致，仅做参考，默认开箱即用，无需另配置
 ```yaml
 springdoc:
   swagger-ui:
