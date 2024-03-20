@@ -64,7 +64,7 @@ public class GeneratorMain {
 
                 .serviceBuilder().formatServiceFileName("%sService")
 
-                .mapperBuilder().formatMapperFileName("%sDao")
+                .mapperBuilder().formatMapperFileName("%sDao").formatXmlFileName("%sDao")
 
                 .entityBuilder().naming(NamingStrategy.underline_to_camel).columnNaming(NamingStrategy.underline_to_camel).enableLombok().enableTableFieldAnnotation().enableChainModel()
 
